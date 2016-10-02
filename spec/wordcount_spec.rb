@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'json'
 require 'wordcount'
@@ -38,19 +39,19 @@ describe 'WordCount App - WordCount' do
       expect(JSON.parse(last_response.body)).to eq(upload_response)
     end
 
-		it 'Camel-Case sensitive' do
+    it 'Camel-Case sensitive' do
       post '/api/v1/upload', 'file' => Rack::Test::UploadedFile.new('spec/payloads/wordcount/case_sensitive.txt', 'text/plain')
       upload_response = JSON.parse(IO.read('spec/payloads/wordcount/case_sensitive.json'))
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(upload_response)
-		end
+    end
 
-		it 'Weird symbols' do
+    it 'Weird symbols' do
       post '/api/v1/upload', 'file' => Rack::Test::UploadedFile.new('spec/payloads/wordcount/weird_symbols.txt', 'text/plain')
       upload_response = JSON.parse(IO.read('spec/payloads/wordcount/weird_symbols.json'))
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(upload_response)
-		end
+    end
   end
 
   describe 'Upload skip method' do
@@ -61,27 +62,27 @@ describe 'WordCount App - WordCount' do
       expect(JSON.parse(last_response.body)).to eq(upload_response)
     end
 
-		it 'Camel-Case sensitive' do
+    it 'Camel-Case sensitive' do
       post '/api/v1/upload/ex', 'file' => Rack::Test::UploadedFile.new('spec/payloads/wordcount/case_sensitive_skip.txt', 'text/plain')
       upload_response = JSON.parse(IO.read('spec/payloads/wordcount/case_sensitive_skip.json'))
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(upload_response)
-		end
+    end
 
-		it 'Weird symbols' do
+    it 'Weird symbols' do
       post '/api/v1/upload/is', 'file' => Rack::Test::UploadedFile.new('spec/payloads/wordcount/weird_symbols_skip.txt', 'text/plain')
       upload_response = JSON.parse(IO.read('spec/payloads/wordcount/weird_symbols_skip.json'))
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(upload_response)
-		end
+    end
 
-		it 'Invalid skip regex' do
+    it 'Invalid skip regex' do
       post '/api/v1/upload/53', 'file' => Rack::Test::UploadedFile.new('spec/payloads/wordcount/no_numbers_skip.txt', 'text/plain')
       upload_response = JSON.parse(IO.read('spec/payloads/wordcount/no_numbers_skip.json'))
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(upload_response)
-		end
-	end
+    end
+  end
 
   describe 'Status method' do
     it 'Valid status file' do
@@ -97,5 +98,5 @@ describe 'WordCount App - WordCount' do
       expect(last_response).to be_ok
       expect(JSON.parse(last_response.body)).to eq(upload_response)
     end
-	end
+  end
 end

@@ -1,21 +1,21 @@
+# frozen_string_literal: true
 require 'sinatra/base'
 require 'sinatra/activerecord'
 require 'webrick'
 require 'webrick/https'
 
-
+# Word Count App, provides Counter (logic) and WordCount (endpoints)
 module WordCountApp
+  MAX_SIZE = 10_240_000
 
-  MAX_SIZE = 10240000
-
-  class Counter
-
+  # Global results and word counter
+  class Counter #:nodoc:
     def initialize
       @files = {}
     end
 
-    def count(filename, text, reg_skip=nil)
-      output = {'total' => 0, 'words' => {}}
+    def count(filename, text, reg_skip = nil)
+      output = { 'total' => 0, 'words' => {} }
       words_array = text.scan(/[[:alpha:]]+/)
       words_array.each do |w|
         next if !reg_skip.nil? && w.include?(reg_skip)
@@ -28,25 +28,26 @@ module WordCountApp
     end
 
     def parsed(file)
-      !@files.nil? && @files.key?(file)
+      @files&.key?(file)
     end
 
     def status(file)
-      !@files.nil? && @files.key?(file) ? @files[file] : "{\"error\": \"File #{file} not found\"}"
+      @files&.key?(file) ? @files[file] : "{\"error\": \"File #{file} not found\"}"
     end
   end
 
+  # REST API endpoint for word counter
   class WordCount < Sinatra::Base
     register Sinatra::ActiveRecordExtension
 
-    def initialize(app = nil, params = {})
+    def initialize(app = nil, _params = {})
       super(app)
       @word = Counter.new
     end
 
     def valid_file(file)
       halt 200, '{"error": "File size greater than 10MB"}' if file[:tempfile].size > MAX_SIZE
-      return file[:filename], file[:tempfile].read
+      [file[:filename], file[:tempfile].read]
     end
 
     def valid_file_params(params)
@@ -57,7 +58,7 @@ module WordCountApp
     end
 
     def valid_skip_regex(params)
-      unless params[:skip] && params[:skip].match(/^[[:alpha:]]+$/)
+      unless params[:skip]&.match(/^[[:alpha:]]+$/)
         halt 200, '{"error": "Invalid skip regex"}'
       end
       params[:skip]
@@ -79,6 +80,5 @@ module WordCountApp
     get '/api/v1/status/:file' do
       @word.status params[:file]
     end
-
   end
 end

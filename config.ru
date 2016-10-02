@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require File.expand_path('wordcount', File.join(File.dirname(__FILE__), 'lib'))
 
 webrick_options = {

@@ -1,11 +1,8 @@
-AllCops:
-  Exclude:
-
 Style/Encoding:
   Enabled: false
 
 Metrics/LineLength:
-  Max: 140
+  Max: 150
 
 Metrics/AbcSize:
   # The ABC size is a calculated magnitude, so this number can be a Fixnum or
