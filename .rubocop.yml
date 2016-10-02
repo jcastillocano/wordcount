@@ -1,0 +1,34 @@
+AllCops:
+  Exclude:
+
+Style/Encoding:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 140
+
+Metrics/AbcSize:
+  # The ABC size is a calculated magnitude, so this number can be a Fixnum or
+  # a Float.
+  Max: 140
+
+Metrics/ClassLength:
+  CountComments: false  # count full line comments?
+  Max: 300
+
+Metrics/ParameterLists:
+  Max: 6
+
+Metrics/ModuleLength:
+  CountComments: false  # count full line comments?
+  Max: 200
+
+Metrics/MethodLength:
+  CountComments: false  # count full line comments?
+  Max: 40
+
+Metrics/CyclomaticComplexity:
+  Max: 9
+
+Metrics/PerceivedComplexity:
+  Max: 9

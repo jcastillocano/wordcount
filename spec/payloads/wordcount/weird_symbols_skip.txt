@@ -1,0 +1,2 @@
+This text# ,contains() weird !symbols.
+This 123 is not5word.

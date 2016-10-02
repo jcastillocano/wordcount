@@ -1,0 +1,2 @@
+This text contains Camel Case examples.
+This Text Contains Camel case Examples.
