@@ -108,4 +108,20 @@ describe 'WordCount App - WordCount' do
       expect(JSON.parse(last_response.body)).to eq(upload_response)
     end
   end
+
+  describe 'Default API endpoints' do
+    it 'Invalid get call' do
+      get '/api/v2/status/basic_upload_content.txt'
+      upload_response = JSON.parse(IO.read('spec/payloads/wordcount/invalid_call_response.json'))
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to eq(upload_response)
+    end
+
+    it 'Invalid post call' do
+      post '/api/upload', 'data' => 'This is a test'
+      upload_response = JSON.parse(IO.read('spec/payloads/wordcount/invalid_call_response.json'))
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to eq(upload_response)
+    end
+  end
 end
