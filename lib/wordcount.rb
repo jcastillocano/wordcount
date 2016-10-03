@@ -7,6 +7,11 @@ require 'webrick/https'
 # Word Count App, provides Counter (logic) and WordCount (endpoints)
 module WordCountApp
   MAX_SIZE = 10_240_000
+  PATH_DOES_NOT_EXIST = '{"error": "path does not exist"}'
+  FILE_SIZE_ERROR = '{"error": "File size greater than 10MB"}'
+  NO_FILE_SUPPLIED = '{"error": "No file supplied"}'
+  FILE_ALREADY_PARSED = '{"error": "File already parsed"}'
+  INVALID_SKIP_REGEX = '{"error": "Invalid skip regex"}'
 
   # Global results and word counter
   class Counter
@@ -46,19 +51,17 @@ module WordCountApp
     end
 
     def valid_file(file)
-      halt 200, '{"error": "File size greater than 10MB"}' if File.size(file[:tempfile]) > MAX_SIZE
+      halt 200, FILE_SIZE_ERROR if File.size(file[:tempfile]) > MAX_SIZE
       [file[:filename], file[:tempfile].read]
     end
 
     def valid_file_params(params)
-      params[:file] && params[:file][:tempfile] && params[:file][:filename] || halt(200, '{"error": "No file supplied"}')
-      !@word.parsed(params[:file][:filename]) || halt(200, '{"error": "File already parsed"}')
+      params[:file] && params[:file][:tempfile] && params[:file][:filename] || halt(200, NO_FILE_SUPPLIED)
+      !@word.parsed(params[:file][:filename]) || halt(200, FILE_ALREADY_PARSED)
     end
 
     def valid_skip_regex(params)
-      unless params[:skip]&.match(/^[[:alpha:]]+$/)
-        halt 200, '{"error": "Invalid skip regex"}'
-      end
+      halt 200, INVALID_SKIP_REGEX unless params[:skip]&.match(/^[[:alpha:]]+$/)
       params[:skip]
     end
 
@@ -76,6 +79,14 @@ module WordCountApp
 
     get '/api/v1/status/:file' do
       @word.status params[:file]
+    end
+
+    get '/*' do
+      halt 200, PATH_DOES_NOT_EXIST
+    end
+
+    post '/*' do
+      halt 200, PATH_DOES_NOT_EXIST
     end
   end
 end
