@@ -6,14 +6,14 @@ require 'wordcount'
 describe 'WordCount App - Count' do
   let(:app) { WordCountApp::Counter.new }
 
-  describe 'Parsed method' do
+  describe 'Already parsed arsed method' do
     it 'File has never been parsed' do
-      expect(app.parsed('foo')).to be false
+      expect(app.already_parsed('foo')).to be false
     end
 
     it 'File has been parsed before' do
       app.count 'foo', ''
-      expect(app.parsed('foo')).to be true
+      expect(app.already_parsed('foo')).to be true
     end
   end
 

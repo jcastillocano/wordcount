@@ -7,7 +7,7 @@ require 'webrick/https'
 # Word Count App, provides Counter (logic) and WordCount (endpoints)
 module WordCountApp
   MAX_SIZE = 10_240_000
-  PATH_DOES_NOT_EXIST = '{"error": "path does not exist"}'
+  PATH_DOES_NOT_EXIST = '{"error": "Path does not exist"}'
   FILE_SIZE_ERROR = '{"error": "File size greater than 10MB"}'
   NO_FILE_SUPPLIED = '{"error": "No file supplied"}'
   FILE_ALREADY_PARSED = '{"error": "File already parsed"}'
@@ -16,15 +16,16 @@ module WordCountApp
   # Global results and word counter
   class Counter
     def initialize
+      # General stats, keep records of every file parsed
       @files = {}
     end
 
-    def parsed(file)
+    def already_parsed(file)
       @files&.key?(file)
     end
 
     def status(file)
-      parsed(file) ? @files[file] : "{\"error\": \"File #{file} not found\"}"
+      @files[file] || "{\"error\": \"File #{file} not found\"}"
     end
 
     def count(filename, text, reg_skip = nil)
@@ -32,7 +33,7 @@ module WordCountApp
       words_array = text.scan(/[[:alpha:]]+/)
       words_array.each do |w|
         next if !reg_skip.nil? && w.include?(reg_skip)
-        output['words'][w] = output['words'].key?(w) ? output['words'][w] + 1 : 1
+        output['words'].tap { |ws| ws[w] = ws.key?(w) ? ws[w] + 1 : 1 }
         output['total'] += 1
       end
 
@@ -57,7 +58,7 @@ module WordCountApp
 
     def valid_file_params(params)
       params[:file] && params[:file][:tempfile] && params[:file][:filename] || halt(200, NO_FILE_SUPPLIED)
-      !@word.parsed(params[:file][:filename]) || halt(200, FILE_ALREADY_PARSED)
+      !@word.already_parsed(params[:file][:filename]) || halt(200, FILE_ALREADY_PARSED)
     end
 
     def valid_skip_regex(params)
