@@ -5,6 +5,8 @@ require 'rubocop/rake_task'
 require 'sinatra/activerecord/rake'
 require 'rubycritic/rake_task'
 
+require File.expand_path('wordcount', File.join(File.dirname(__FILE__), 'lib'))
+
 desc 'Run rubocop'
 task :rubocop do
   RuboCop::RakeTask.new
@@ -20,6 +22,18 @@ task :rubycritic do
   RubyCritic::RakeTask.new do |task|
     task.options = '--no-browser'
   end
+end
+
+task :run do
+  webrick_options = {
+    Host: ENV['WC_HOST'] || '0.0.0.0',
+    Port: ENV['WC_PORT'] || 8888,
+    Logger: WEBrick::Log.new($stderr, WEBrick::Log::DEBUG),
+    DocumentRoot: './root/',
+    app: WordCountApp::WordCount
+  }
+
+  Rack::Server.start webrick_options
 end
 
 task default: [:rubocop, :rubycritic, :test]
