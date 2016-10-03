@@ -18,6 +18,15 @@ describe 'WordCount App - WordCount' do
       expect(JSON.parse(last_response.body)).to eq(upload_response)
     end
 
+    it 'Upload error: size greater than max' do
+      allow(File).to receive(:size).and_return(WordCountApp::MAX_SIZE + 1)
+      file = Rack::Test::UploadedFile.new('spec/payloads/wordcount/invalid_size.txt', 'text/plain')
+      post '/api/v1/upload', 'file' => file
+      upload_response = JSON.parse(IO.read('spec/payloads/wordcount/invalid_size.json'))
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)).to eq(upload_response)
+    end
+
     it 'Upload error: no file supplied' do
       post '/api/v1/upload', 'data' => nil
       upload_response = JSON.parse(IO.read('spec/payloads/wordcount/no_file.json'))

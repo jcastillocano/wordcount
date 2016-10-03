@@ -9,9 +9,17 @@ module WordCountApp
   MAX_SIZE = 10_240_000
 
   # Global results and word counter
-  class Counter #:nodoc:
+  class Counter
     def initialize
       @files = {}
+    end
+
+    def parsed(file)
+      @files&.key?(file)
+    end
+
+    def status(file)
+      parsed(file) ? @files[file] : "{\"error\": \"File #{file} not found\"}"
     end
 
     def count(filename, text, reg_skip = nil)
@@ -26,14 +34,6 @@ module WordCountApp
       # Update general stats
       @files[filename] = output.to_json
     end
-
-    def parsed(file)
-      @files&.key?(file)
-    end
-
-    def status(file)
-      @files&.key?(file) ? @files[file] : "{\"error\": \"File #{file} not found\"}"
-    end
   end
 
   # REST API endpoint for word counter
@@ -46,15 +46,13 @@ module WordCountApp
     end
 
     def valid_file(file)
-      halt 200, '{"error": "File size greater than 10MB"}' if file[:tempfile].size > MAX_SIZE
+      halt 200, '{"error": "File size greater than 10MB"}' if File.size(file[:tempfile]) > MAX_SIZE
       [file[:filename], file[:tempfile].read]
     end
 
     def valid_file_params(params)
-      unless params[:file] && params[:file][:tempfile] && params[:file][:filename]
-        halt 200, '{"error": "No file supplied"}'
-      end
-      halt 200, '{"error": "File already parsed"}' if @word.parsed(params[:file][:filename])
+      params[:file] && params[:file][:tempfile] && params[:file][:filename] || halt(200, '{"error": "No file supplied"}')
+      !@word.parsed(params[:file][:filename]) || halt(200, '{"error": "File already parsed"}')
     end
 
     def valid_skip_regex(params)
@@ -66,8 +64,7 @@ module WordCountApp
 
     post '/api/v1/upload' do
       valid_file_params params
-      name, text = valid_file(params[:file])
-      @word.count(name, text)
+      @word.count(*valid_file(params[:file]))
     end
 
     post '/api/v1/upload/:skip' do
